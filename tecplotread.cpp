@@ -35,6 +35,8 @@ tecplotread::tecplotread(string filename) :
   file.read (buffer, 8);
   buffer[8] = '\0';
   version = string(buffer);
+  if (version != "#!TDV112")
+    cout << "Parser based on version #!TDV112, current version is: " << version << endl;
 
   // section ii
   readbin(byte_order);
