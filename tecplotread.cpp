@@ -324,7 +324,7 @@ tecplotread::tecplotread(string filename) :
 // method to read a data type from a binary file
 template <typename T>
 void tecplotread::readbin(T& obj) {
-    file.read(reinterpret_cast<char *>(addressof(obj)), sizeof(T));
+  file.read(reinterpret_cast<char *>(addressof(obj)), sizeof(T));
 }
 
 template <typename T>
@@ -360,7 +360,7 @@ void tecplotread::read_zone_connectivity(vector<T>& values, int zoneindex, int n
   values.resize(zones[zoneindex]->number_elements * node_per_element);
   
   for (auto i(0); i<values.size(); i++)
-    readbin(values[i]);    
+    readbin(values[i]);
 }
 
 void tecplotread::basic_information()
@@ -393,7 +393,10 @@ void tecplotread::complete_information()
   cout << "variable_names: " << variable_names << endl;
 
   // zone stats
-  cout << "Contains " << zones.size() << " zones." << endl; 
+  if (zones.size() == 1)
+    cout << "file contains " << zones.size() << " zone:" << endl; 
+  else
+    cout << "file contains " << zones.size() << " zones:" << endl; 
   cout << endl;
   
   for (size_t i(0); i<zones.size(); i++)

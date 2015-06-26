@@ -138,8 +138,9 @@ public:
   vector<float> getDataFloat(int id) const;
   vector<double> getDataDouble(int id) const;
   vector<long int> getDataLongInt(int id) const;
-  vector<int> getDataInt(int id) const;  
-  
+  vector<int> getDataInt(int id) const;
+  vector<int> getZoneConnectity() const { return zone_connectivity; };
+
 private:   
   string zone_name;
   int parent_zone;
@@ -226,11 +227,11 @@ public:
   vector<string> getVariableNames() const { return variable_names; };
   
   string getVariableName(int id) const { 
-    assert(id >= 0 and id < variable_names.size()); 
+    assert(id >= 0 and id < int(variable_names.size())); 
     return variable_names[id]; 
   };
   zone* getZone(int id) const { 
-    assert(id >= 0 and id < zones.size()); 
+    assert(id >= 0 and id < int(zones.size())); 
     return zones[id]; 
   };
   

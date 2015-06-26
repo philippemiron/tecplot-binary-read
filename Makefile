@@ -17,4 +17,3 @@ $(TARGETDIR)/%.o: $(TARGETDIR)/%.cpp $(TARGETDIR)/%.h
 clean:
 	rm -f *.o;
 	rm -f main.bin;
-   
