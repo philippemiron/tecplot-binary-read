@@ -155,7 +155,7 @@ tecplotread::tecplotread(string filename) :
   
   // Data section
   assert(validation_marker == 357.0);
-  for (auto index(0); index<zones.size(); index++)
+  for (size_t index(0); index<zones.size(); index++)
   {
     readbin(validation_marker);  
     assert(validation_marker == 299.0);
@@ -349,7 +349,7 @@ void tecplotread::read_zone_data(vector<T>& values, int zoneindex, int varindex)
     }
   }
   
-  for (auto i(0); i<values.size(); i++)
+  for (size_t i(0); i<values.size(); i++)
     readbin(values[i]);    
 }
 
@@ -359,7 +359,7 @@ void tecplotread::read_zone_connectivity(vector<T>& values, int zoneindex, int n
   // resize vector
   values.resize(zones[zoneindex]->number_elements * node_per_element);
   
-  for (auto i(0); i<values.size(); i++)
+  for (size_t i(0); i<values.size(); i++)
     readbin(values[i]);
 }
 
@@ -514,7 +514,7 @@ void tecplotread::zone_information(int zone_id)
 tecplotread::~tecplotread()
 {
   // delete all the created zones
-  for (auto i(0); i<zones.size(); i++)
+  for (size_t i(0); i<zones.size(); i++)
     delete zones[i];
   zones.resize(0);
 }
@@ -570,60 +570,60 @@ zone::zone() :
 {};
 
 int zone::getVariableFormat(int id) const { 
-  assert(id >= 0 and id < variable_format.size()); 
+  assert(id >= 0 and id < int(variable_format.size())); 
   return variable_format[id]; 
 };
 
 vector<int> zone::getVariableIndex(int id) const { 
-  assert(id >= 0 and id < variable_index.size()); 
+  assert(id >= 0 and id < int(variable_index.size())); 
   return variable_index[id]; 
 };
 
 int zone::getVariableIndex(int type, int id) const { 
-  assert(type >= 0 and type < variable_index.size()); 
-  assert(id >= 0 and id < variable_index[type].size()); 
+  assert(type >= 0 and type < int(variable_index.size())); 
+  assert(id >= 0 and id < int(variable_index[type].size())); 
   return variable_index[type][id]; 
 };
 
 int zone::getPassiveVariables(int id) const { 
-  assert(id >= 0 and id < passive_variables.size()); 
+  assert(id >= 0 and id < int(passive_variables.size())); 
   return passive_variables[id]; 
 };
 
 int zone::getVariableSharing(int id) const { 
-  assert(id >= 0 and id < variable_sharing.size()); 
+  assert(id >= 0 and id < int(variable_sharing.size())); 
   return variable_sharing[id]; 
 };
 
 double zone::getMinValue(int id) const { 
-  assert(id >= 0 and id < min_value.size()); 
+  assert(id >= 0 and id < int(min_value.size())); 
   return min_value[id]; 
 };
 
 double zone::getMaxValue(int id) const { 
-  assert(id >= 0 and id < max_value.size()); 
+  assert(id >= 0 and id < int(max_value.size())); 
   return max_value[id]; 
 };
 
 int zone::getVarsLocation(int id) const { 
-  assert(id >= 0 and id < vars_location.size()); 
+  assert(id >= 0 and id < int(vars_location.size())); 
   return vars_location[id]; 
 };
 
 vector<float> zone::getDataFloat(int id) const { 
-  assert(id >= 0 and id < data_float.size()); 
+  assert(id >= 0 and id < int(data_float.size())); 
   return data_float[id]; 
 };
 vector<double> zone::getDataDouble(int id) const { 
-  assert(id >= 0 and id < data_double.size()); 
+  assert(id >= 0 and id < int(data_double.size())); 
   return data_double[id]; 
 };
 vector<long int> zone::getDataLongInt(int id) const { 
-  assert(id >= 0 and id < data_longint.size()); 
+  assert(id >= 0 and id < int(data_longint.size())); 
   return data_longint[id]; 
 };
 vector<int> zone::getDataInt(int id) const { 
-  assert(id >= 0 and id < data_int.size()); 
+  assert(id >= 0 and id < int(data_int.size())); 
   return data_int[id]; 
 };
 

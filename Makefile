@@ -1,6 +1,6 @@
 # variables
 COMP_C := g++
-FLAGS_C := -g -std=c++11
+FLAGS_C := -Wall -O3 -std=c++11
 TARGETDIR=.
 
 main: main.o tecplotread.o
