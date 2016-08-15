@@ -230,6 +230,8 @@ public:
     assert(id >= 0 and id < int(variable_names.size())); 
     return variable_names[id]; 
   };
+  
+  int getNumberZones() const { return zones.size(); };
   zone* getZone(int id) const { 
     assert(id >= 0 and id < int(zones.size())); 
     return zones[id]; 
