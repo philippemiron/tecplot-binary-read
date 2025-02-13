@@ -13,7 +13,7 @@ $(TARGETDIR)/%.o: $(TARGETDIR)/%.cpp
 # Compile all source files .cpp into .o files
 $(TARGETDIR)/%.o: $(TARGETDIR)/%.cpp $(TARGETDIR)/%.h
 	$(COMP_C) $(FLAGS_C) -c $< -o $@
-  
+
 clean:
 	rm -f *.o;
 	rm -f main.bin;
