@@ -1,42 +1,37 @@
 Author: Philippe Miron
 
-Tecplot library to read binary file create with TECIO
-or from Tecplot 360 interface. It is based on the information
-provided in the "Data Format Guide" available here:
-*ftp://ftp.tecplot.com/pub/doc/tecplot/360/dataformat.pdf*.
+## Information
 
-I believe this is the #!TDV112 format. This library is in
-no case errors proofs and I have tested and using it only
-with data files I'm using on a regular basic.
+Tecplot library to read binary files created with TECIO or from the Tecplot 360 interface. It is based on the information
+provided in the "Data Format Guide" available at [ftp://ftp.tecplot.com/pub/doc/tecplot/360/dataformat.pdf](ftp://ftp.tecplot.com/pub/doc/tecplot/360/dataformat.pdf).
 
-Usage:
+This is based on the `#!TDV112` version format. This library is not error-proof, and I have only tested this code using a handful of data files that I use regularly.
 
-1. `git clone the repo`
-2. `make`
-3. `./main.bin examples/x.plt`
-4. This will *print* on screen the
-   information of the plt file
+## Usage:
 
-With the printed information, it is easy to see the variable 
-tables and name available, the number of zones, etc.
+```
+git clone https://github.com/philippemiron/tecplot-binary-read.git
+cd tecplot-binary-read/
+make
+./main.bin examples/x.plt
+```
 
-1. Retrieving variables name
+This will *print* on the console the `complete_information()` of the plt file.
+
+The printed information makes it easy to see the variable tables and names available, the number of zones, etc.
+
+1. Retrieving the variable name(s):
   - `vector<string> vars_name = tpobj->getVariableNames();`
   - `string var1 = tpobj->getVariableName(0);`
 
-2. Retrieving number of points and elements in zone1 :
+2. Retrieving the number of points or elements in the first zone:
   - `int number_points = tpobj->getZone(0)->getNumberPoints();`
   - `int number_elements = tpobj->getZone(0)->getNumberElements();`
 
-3. Retrieving variables data section:
- - if datatype is float
- - This would retrieve data from 1st variable of 1st zone:
+3. Retrieving the variables in the data section:
+ - if the datatype is` float`, the following would retrieve data from the first variable of the first zone:
    `vector<float> var1_zone1 = tpobj->getZone(0)->getDataFloat(0);`
- - Or you could retrive all the values of all variable of 1st zone:
+ - Or you can retrieve all the values of all variables of the first zone:
    `vector<vector<float>> vars_zone1 = tpobj->getZone(0)->getDataFloat();`
 
-All variables read by the library are available throught getters method
-*take a look in the .hpp file*!
-   
-
-  
+All variables read by the library are available through the getter methods. Take a look at the header file.
