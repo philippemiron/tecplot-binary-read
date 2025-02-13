@@ -91,7 +91,6 @@ public:
   int getStrandId() const { return strand_id; };
   double getSolutionTime() const { return solution_time; };
   int getZoneType() const { return zone_type; };
-  int getDataPacking() const { return data_packing; };
   int getVarLocation() const { return var_location; };
   vector<int> getVarsLocation() const { return vars_location; };
   int getVarsLocation(int id) const;
@@ -149,7 +148,6 @@ private:
   int not_used;
   int zone_type;  // 0=ORDERED 1=FELINESEG 2=FETRIANGLE 3=FEQUADRILATERAL 
                   // 4=FETETRAHEDRON 5=FEBRICK 6=FEPOLYGON 7=FEPOLYHEDRON
-  int data_packing; // 0=Block, 1=Point
   int var_location;
   vector<int> vars_location;
 

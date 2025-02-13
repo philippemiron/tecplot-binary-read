@@ -63,7 +63,6 @@ tecplotread::tecplotread(string filename) :
     readbin(z->solution_time);
     readbin(z->not_used);
     readbin(z->zone_type);
-    readbin(z->data_packing);
     readbin(z->var_location);
         
     if (z->var_location == 1)
@@ -75,15 +74,12 @@ tecplotread::tecplotread(string filename) :
     
     // face neighbors
     readbin(z->face_neighbors);
-    if (z->face_neighbors == 1)
+    readbin(z->number_face_neighbors);
+    if (z->number_face_neighbors != 0)
     {
-      readbin(z->number_face_neighbors);
-      if (z->number_face_neighbors != 0)
-      {
-        readbin(z->face_neighbors_mode);
-        if (z->zone_type >= 1 and z->zone_type <= 7 )
-          readbin(z->fe_face_neighbors);
-      }
+      readbin(z->face_neighbors_mode);
+      if (z->zone_type >= 1 and z->zone_type <= 7 )
+        readbin(z->fe_face_neighbors);
     }
     
     // ordered zone
@@ -407,7 +403,6 @@ void tecplotread::complete_information()
     cout << "solution_time: " << zones[i]->solution_time << endl;
     cout << "not_used: " << zones[i]->not_used << endl;
     cout << "zone_type: " << zones[i]->zone_type << endl;
-    cout << "data_packing: " << zones[i]->data_packing << endl;
     cout << "var_location: " << zones[i]->var_location << endl;
     cout << "vars_location: " << zones[i]->vars_location << endl;
     cout << "face_neighbors: " << zones[i]->face_neighbors << endl;
@@ -469,7 +464,6 @@ void tecplotread::zone_information(int zone_id)
   cout << "solution_time: " << zones[zone_id]->solution_time << endl;
   cout << "not_used: " << zones[zone_id]->not_used << endl;
   cout << "zone_type: " << zones[zone_id]->zone_type << endl;
-  cout << "data_packing: " << zones[zone_id]->data_packing << endl;
   cout << "var_location: " << zones[zone_id]->var_location << endl;
   cout << "vars_location: " << zones[zone_id]->vars_location << endl;
   cout << "face_neighbors: " << zones[zone_id]->face_neighbors << endl;
@@ -546,7 +540,6 @@ zone::zone() :
   solution_time(0.0),
   not_used(0),
   zone_type(0),
-  data_packing(0),
   var_location(0),
   face_neighbors(0),
   number_face_neighbors(0),
