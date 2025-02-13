@@ -1,18 +1,3 @@
-/*
-  Copyright (C) 2015 Philippe Miron
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -27,13 +12,13 @@ using namespace std;
 // is currently not used in the code
 // It has to be validate but for now
 // I don't have need for this :|
-class auxiliary 
+class auxiliary
 {
   friend class zone;
 public:
   auxiliary();
   ~auxiliary() {};
-  
+
   string auxiliary_name;
   int auxiliary_format;
   string auxiliary_value;
@@ -45,7 +30,7 @@ class geometry
 public:
   geometry();
   ~geometry() {};
-  
+
   int coord_sys;
   int scope;
   double x;   // or theta
@@ -72,7 +57,7 @@ public:
   int number_of_polylines;
   int number_of_points; // line 1.
   vector<float> x_float;
-  vector<double> x_double;  
+  vector<double> x_double;
   vector<float> y_float;
   vector<double> y_double;
   vector<float> z_float; // Grid3D Only
@@ -85,7 +70,7 @@ class zone
 public:
   zone();
   ~zone() {};
-  
+
   string getZoneName() const { return zone_name; };
   int getParentZone() const { return parent_zone; };
   int getStrandId() const { return strand_id; };
@@ -95,16 +80,16 @@ public:
   int getVarLocation() const { return var_location; };
   vector<int> getVarsLocation() const { return vars_location; };
   int getVarsLocation(int id) const;
-  
+
   int getFaceNeighbors() const { return face_neighbors; };
   int getNumberFaceNeighbors() const { return number_face_neighbors; };
   int getFaceNeighborsMode() const { return face_neighbors_mode; };
   int getFeFaceNeighbors() const { return fe_face_neighbors; };
-  
+
   int getIMax() const { return imax; };
   int getJMax() const { return jmax; };
   int getKMax() const { return kmax; };
-  
+
   int getNumberPoints() const { return number_points; };
   int getNumberFaces() const { return number_faces; };
   int getTotalFaces() const { return total_faces; };
@@ -113,7 +98,7 @@ public:
   int getICell() const { return icell; };
   int getJCell() const { return jcell; };
   int getKCell() const { return kcell; };
-  
+
   vector<int> getVariableFormat() const { return variable_format; };
   vector<vector<int>> getVariableIndex() const { return variable_index; };
   int getHasPassiveVariables() const { return has_passive_variables; };
@@ -130,7 +115,7 @@ public:
   int getVariableSharing(int id) const;
   double getMinValue(int id) const;
   double getMaxValue(int id) const;
-    
+
   vector<vector<float>> getDataFloat() const { return data_float; };
   vector<vector<double>> getDataDouble() const { return data_double; };
   vector<vector<long int>> getDataLongInt() const { return data_longint; };
@@ -141,13 +126,13 @@ public:
   vector<int> getDataInt(int id) const;
   vector<int> getZoneConnectity() const { return zone_connectivity; };
 
-private:   
+private:
   string zone_name;
   int parent_zone;
   int strand_id;
   double solution_time;
   int not_used;
-  int zone_type;  // 0=ORDERED 1=FELINESEG 2=FETRIANGLE 3=FEQUADRILATERAL 
+  int zone_type;  // 0=ORDERED 1=FELINESEG 2=FETRIANGLE 3=FEQUADRILATERAL
                   // 4=FETETRAHEDRON 5=FEBRICK 6=FEPOLYGON 7=FEPOLYHEDRON
   int data_packing; // 0=Block, 1=Point
   int var_location;
@@ -191,7 +176,7 @@ private:
   int zone_share_connectivity;
   vector<double> min_value;
   vector<double> max_value;
-    
+
   // data vectors
   // theses vectors are empty if
   // none variable is of one type
@@ -217,7 +202,7 @@ public:
   void basic_information();
   void complete_information();
   void zone_information(int zone_id);
-  
+
   float getValidationMarker() const { return validation_marker; };
   string getVersion() const { return version; };
   int getByteOrder() const { return byte_order; };
@@ -225,47 +210,47 @@ public:
   string getTitle() const { return title; };
   int getNumberVariables() const { return number_variables; };
   vector<string> getVariableNames() const { return variable_names; };
-  
-  string getVariableName(int id) const { 
-    assert(id >= 0 and id < int(variable_names.size())); 
-    return variable_names[id]; 
+
+  string getVariableName(int id) const {
+    assert(id >= 0 and id < int(variable_names.size()));
+    return variable_names[id];
   };
-  
+
   int getNumberZones() const { return zones.size(); };
-  zone* getZone(int id) const { 
-    assert(id >= 0 and id < int(zones.size())); 
-    return zones[id]; 
+  zone* getZone(int id) const {
+    assert(id >= 0 and id < int(zones.size()));
+    return zones[id];
   };
-  
+
 private:
   string ascii_to_string();
   template <typename T> void readbin(T& obj);
   template <typename T> void read_zone_data(vector<T>& values, int zone_index, int var_index);
   template <typename T> void read_zone_connectivity(vector<T>& values, int zone_index, int node_per_element);
-  
+
   // iostream
   ifstream file;
-  
+
   // section marker
   float validation_marker;
-  
+
   // section i
   string version;
-  
+
   // section ii
   int byte_order;
-  
+
   // section iii
   int file_type; // 0=FULL 1=GRID 2=SOLUTION
   string title;
   int number_variables;
   vector<string> variable_names;
-  
+
   // section iv : zone with data
   // each zone is added to this
   // vector on read
   vector<zone*> zones;
-  
+
   // TODO
   // section v: geometries
   // vector<geometry*> geometries;
@@ -273,16 +258,16 @@ private:
 
 // template to define operator << for vector
 template < class T >
-ostream& operator << (ostream& os, const vector<T>& v) 
+ostream& operator << (ostream& os, const vector<T>& v)
 {
     os << "[";
     bool first(true);
     for (typename vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
     {
-      if (!first) 
+      if (!first)
       {
         os << ", " << *ii;
-      }  
+      }
       else
       {
         os << *ii;
@@ -290,6 +275,6 @@ ostream& operator << (ostream& os, const vector<T>& v)
       }
     }
     os << "]";
-  
+
     return os;
 }

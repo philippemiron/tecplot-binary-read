@@ -14,7 +14,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "tecplotread.hpp"
-  
+
 tecplotread::tecplotread(string filename) :
   validation_marker(0.0),
   version(""),
@@ -22,13 +22,13 @@ tecplotread::tecplotread(string filename) :
   file_type(0),
   title("")
 {
-  
+
   // open the file
   file.open(filename.c_str(), ifstream::binary);
 
   // validate opening of file
   assert(file.good());
-  
+
   // Header section
   // section i
   char buffer[9];
@@ -40,12 +40,12 @@ tecplotread::tecplotread(string filename) :
 
   // section ii
   readbin(byte_order);
-  
+
   // section iii
   readbin(file_type);
   title = ascii_to_string();
   readbin(number_variables);
-  
+
   variable_names.resize(number_variables);
   for (int i(0); i<number_variables; i++)
     variable_names[i] = ascii_to_string();
@@ -57,22 +57,22 @@ tecplotread::tecplotread(string filename) :
   {
     zone* z = new zone;
 
-    z->zone_name = ascii_to_string();    
-    readbin(z->parent_zone);     
-    readbin(z->strand_id);  
+    z->zone_name = ascii_to_string();
+    readbin(z->parent_zone);
+    readbin(z->strand_id);
     readbin(z->solution_time);
     readbin(z->not_used);
     readbin(z->zone_type);
     readbin(z->data_packing);
     readbin(z->var_location);
-        
+
     if (z->var_location == 1)
     {
       z->vars_location.resize(number_variables);
       for (int i(0); i<number_variables; i++)
         readbin(z->vars_location[i]);
     }
-    
+
     // face neighbors
     readbin(z->face_neighbors);
     if (z->face_neighbors == 1)
@@ -85,7 +85,7 @@ tecplotread::tecplotread(string filename) :
           readbin(z->fe_face_neighbors);
       }
     }
-    
+
     // ordered zone
     if (z->zone_type == 0)
     {
@@ -96,12 +96,12 @@ tecplotread::tecplotread(string filename) :
         z->number_elements = (z->imax-1);
       else if (z->kmax == 1) // 2D data
         z->number_elements = (z->imax-1) * (z->jmax-1);
-      else 
+      else
         z->number_elements = (z->imax-1) * (z->jmax-1) * (z->kmax-1);
-      
+
       z->number_points = z->imax * z->jmax * z->kmax;
     }
-    
+
     // finite element zone
     if (z->zone_type >= 1 and z->zone_type <= 7)
     {
@@ -135,11 +135,11 @@ tecplotread::tecplotread(string filename) :
 
     zones.emplace_back(z);
 
-    // read the next marker to check if 
+    // read the next marker to check if
     // there is more than one zone
     readbin(validation_marker);
   } // end of zone section
-  
+
   // section v
   if (validation_marker == 399)
   {
@@ -148,22 +148,22 @@ tecplotread::tecplotread(string filename) :
     exit(-1);
   }
   // end of geometrie
-  
+
   ////////////////////////
   // end of header section
   ////////////////////////
-  
+
   // Data section
   assert(validation_marker == 357.0);
   for (size_t index(0); index<zones.size(); index++)
   {
-    readbin(validation_marker);  
+    readbin(validation_marker);
     assert(validation_marker == 299.0);
-    
+
     zones[index]->variable_format.resize(number_variables);
     for (int i(0); i<number_variables; i++)
       readbin(zones[index]->variable_format[i]);
-    
+
     readbin(zones[index]->has_passive_variables);
     zones[index]->passive_variables.resize(number_variables, 0);
     if (zones[index]->has_passive_variables)
@@ -178,7 +178,7 @@ tecplotread::tecplotread(string filename) :
       for (int i(0); i<number_variables; i++)
         readbin(zones[index]->variable_sharing[i]);
     }
-    
+
     readbin(zones[index]->zone_share_connectivity); // if -1 no sharing
     zones[index]->min_value.resize(number_variables);
     zones[index]->max_value.resize(number_variables);
@@ -187,7 +187,7 @@ tecplotread::tecplotread(string filename) :
       readbin(zones[index]->min_value[i]);
       readbin(zones[index]->max_value[i]);
     }
-      
+
     // read the data tables
     zones[index]->variable_index.resize(4);
     for (int i(0); i<number_variables; i++)
@@ -204,47 +204,47 @@ tecplotread::tecplotread(string filename) :
             zones[index]->variable_index[0].emplace_back(i);
             break;
           }
-        
+
           case 2:
           {
             vector<double> tempvalues;
-            read_zone_data(tempvalues, index, i);       
+            read_zone_data(tempvalues, index, i);
             zones[index]->data_double.emplace_back(tempvalues);
             zones[index]->variable_index[1].emplace_back(i);
             break;
           }
-        
+
           case 3:
           {
             vector<long int> tempvalues;
-            read_zone_data(tempvalues, index, i);       
+            read_zone_data(tempvalues, index, i);
             zones[index]->data_longint.emplace_back(tempvalues);
             zones[index]->variable_index[2].emplace_back(i);
             break;
           }
-        
+
           case 4:
           {
             vector<int> tempvalues;
-            read_zone_data(tempvalues, index, i);       
+            read_zone_data(tempvalues, index, i);
             zones[index]->data_int.emplace_back(tempvalues);
             zones[index]->variable_index[3].emplace_back(i);
             break;
           }
-           
+
           default:
           {
             cout << "type of data not supported: " << zones[index]->variable_format[i] << endl;
             exit(-1);
             break;
           }
-        } 
+        }
       }
     }
-    
+
     // TODO: complete this part
     // I must say that I don't 100% understand
-    // this section ... 
+    // this section ...
     // specific to ordered zone
     /*
     if (zones[index]->zone_type == 0)
@@ -255,10 +255,10 @@ tecplotread::tecplotread(string filename) :
         // N = (number of miscellaneous user defined
         // face neighbor connections) * P
         // (See note 5 below).
-      }  
+      }
     }
     */
-    
+
     // specific to fe zone
     if (zones[index]->zone_type >= 1 and zones[index]->zone_type <= 7)
     {
@@ -270,7 +270,7 @@ tecplotread::tecplotread(string filename) :
         {
           // Set the number of node per element according
           // to the zone type.
-          // 1=FELINESEG 2=FETRIANGLE 3=FEQUADRILATERAL 
+          // 1=FELINESEG 2=FETRIANGLE 3=FEQUADRILATERAL
           // 4=FETETRAHEDRON 5=FEBRICK
           switch (zones[index]->zone_type)
           {
@@ -298,7 +298,7 @@ tecplotread::tecplotread(string filename) :
             {
               l = 8;
               break;
-            }          
+            }
             default:
             {
               cout << "element type unknown << (" << zones[index]->zone_type << "), can't read connectivity."  << endl;
@@ -306,17 +306,17 @@ tecplotread::tecplotread(string filename) :
               break;
             }
           }
-          read_zone_connectivity(zones[index]->zone_connectivity, index, l);     
+          read_zone_connectivity(zones[index]->zone_connectivity, index, l);
         }
-        
+
       }
-      
+
       // TODO: other section to complete
       // 6=FEPOLYGON 7=FEPOLYHEDRON
       //else
       //{
-        
-      //}  
+
+      //}
     }
   }
 };
@@ -335,9 +335,9 @@ void tecplotread::read_zone_data(vector<T>& values, int zoneindex, int varindex)
   {
     values.resize(zones[zoneindex]->number_points);
   }
-  else 
+  else
   {
-    // if not we have to look at the location of 
+    // if not we have to look at the location of
     // each particular variables
     if (zones[zoneindex]->vars_location[varindex] == 0)
     {
@@ -348,9 +348,9 @@ void tecplotread::read_zone_data(vector<T>& values, int zoneindex, int varindex)
       values.resize(zones[zoneindex]->number_elements);
     }
   }
-  
+
   for (size_t i(0); i<values.size(); i++)
-    readbin(values[i]);    
+    readbin(values[i]);
 }
 
 template <typename T>
@@ -358,7 +358,7 @@ void tecplotread::read_zone_connectivity(vector<T>& values, int zoneindex, int n
 {
   // resize vector
   values.resize(zones[zoneindex]->number_elements * node_per_element);
-  
+
   for (size_t i(0); i<values.size(); i++)
     readbin(values[i]);
 }
@@ -368,7 +368,7 @@ void tecplotread::basic_information()
 // Validation
 cout << "Basic file information" << endl;
 cout << "version: " << version << endl;
-cout << "byte_order: " << byte_order << endl; 
+cout << "byte_order: " << byte_order << endl;
 
 cout << "file_type: " << file_type << endl;
 cout << "title: " << title << endl;
@@ -385,7 +385,7 @@ void tecplotread::complete_information()
   // Validation
   cout << "Complete file information" << endl;
   cout << "version: " << version << endl;
-  cout << "byte_order: " << byte_order << endl; 
+  cout << "byte_order: " << byte_order << endl;
 
   cout << "file_type: " << file_type << endl;
   cout << "title: " << title << endl;
@@ -394,11 +394,11 @@ void tecplotread::complete_information()
 
   // zone stats
   if (zones.size() == 1)
-    cout << "file contains " << zones.size() << " zone:" << endl; 
+    cout << "file contains " << zones.size() << " zone:" << endl;
   else
-    cout << "file contains " << zones.size() << " zones:" << endl; 
+    cout << "file contains " << zones.size() << " zones:" << endl;
   cout << endl;
-  
+
   for (size_t i(0); i<zones.size(); i++)
   {
     cout << "zonename: " << zones[i]->zone_name << endl;
@@ -423,7 +423,7 @@ void tecplotread::complete_information()
     cout << "number_elements: " << zones[i]->number_elements << endl;
     cout << "icell: " << zones[i]->icell << endl;
     cout << "jcell: " << zones[i]->jcell << endl;
-    cout << "kcell: " << zones[i]->kcell << endl; 
+    cout << "kcell: " << zones[i]->kcell << endl;
     cout << "variable_format: " << zones[i]->variable_format << endl;
     cout << "has_passive_variables: " << zones[i]->has_passive_variables << endl;
     cout << "passive_variable: " << zones[i]->passive_variables << endl;
@@ -434,21 +434,21 @@ void tecplotread::complete_information()
     cout << "max_value: " << zones[i]->max_value << endl;
     cout << "Size of the float vector: " << zones[i]->data_float.size() << endl;
     for (size_t j(0); j<zones[i]->data_float.size(); j++)
-      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[0][j]] << " " << zones[i]->data_float[j].size() << " values." << endl; 
+      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[0][j]] << " " << zones[i]->data_float[j].size() << " values." << endl;
     cout << "Size of the double vector: " << zones[i]->data_double.size() << endl;
     for (size_t j(0); j<zones[i]->data_double.size(); j++)
-      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[1][j]] << " " << zones[i]->data_double[j].size() << " values." << endl; 
+      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[1][j]] << " " << zones[i]->data_double[j].size() << " values." << endl;
     cout << "Size of the long int vector: " << zones[i]->data_longint.size() << endl;
     for (size_t j(0); j<zones[i]->data_longint.size(); j++)
-      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[2][j]] << " " << zones[i]->data_longint[j].size() << " values." << endl; 
+      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[2][j]] << " " << zones[i]->data_longint[j].size() << " values." << endl;
     cout << "Size of the int vector: " << zones[i]->data_int.size() << endl;
     for (size_t j(0); j<zones[i]->data_int.size(); j++)
-      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[3][j]] << " " << zones[i]->data_int[j].size() << " values." << endl; 
+      cout << "\t" << "[" << j << "]: " << variable_names[zones[i]->variable_index[3][j]] << " " << zones[i]->data_int[j].size() << " values." << endl;
     if (zones[i]->zone_share_connectivity == -1)
       cout << "Size of connectivity: " << zones[i]->zone_connectivity.size() << endl;
     cout << endl;
-  
-  }  
+
+  }
 }
 
 void tecplotread::zone_information(int zone_id)
@@ -456,7 +456,7 @@ void tecplotread::zone_information(int zone_id)
   // Validation
   cout << "Information of zones: " << zone_id << endl;
   cout << "version: " << version << endl;
-  cout << "byte_order: " << byte_order << endl; 
+  cout << "byte_order: " << byte_order << endl;
   cout << "file_type: " << file_type << endl;
   cout << "title: " << title << endl;
   cout << "number_variables: " << number_variables << endl;
@@ -485,7 +485,7 @@ void tecplotread::zone_information(int zone_id)
   cout << "number_elements: " << zones[zone_id]->number_elements << endl;
   cout << "icell: " << zones[zone_id]->icell << endl;
   cout << "jcell: " << zones[zone_id]->jcell << endl;
-  cout << "kcell: " << zones[zone_id]->kcell << endl; 
+  cout << "kcell: " << zones[zone_id]->kcell << endl;
   cout << "variable_format: " << zones[zone_id]->variable_format << endl;
   cout << "has_passive_variable: " << zones[zone_id]->has_passive_variables << endl;
   cout << "passive_variable: " << zones[zone_id]->passive_variables << endl;
@@ -496,16 +496,16 @@ void tecplotread::zone_information(int zone_id)
   cout << "max_value: " << zones[zone_id]->max_value << endl;
   cout << "Size of the float vector: " << zones[zone_id]->data_float.size() << endl;
   for (size_t j(0); j<zones[zone_id]->data_float.size(); j++)
-    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[0][j]] << " " << zones[zone_id]->data_float[j].size() << " values." << endl; 
+    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[0][j]] << " " << zones[zone_id]->data_float[j].size() << " values." << endl;
   cout << "Size of the double vector: " << zones[zone_id]->data_double.size() << endl;
   for (size_t j(0); j<zones[zone_id]->data_double.size(); j++)
-    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[1][j]] << " " << zones[zone_id]->data_double[j].size() << " values." << endl; 
+    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[1][j]] << " " << zones[zone_id]->data_double[j].size() << " values." << endl;
   cout << "Size of the long int vector: " << zones[zone_id]->data_longint.size() << endl;
   for (size_t j(0); j<zones[zone_id]->data_longint.size(); j++)
-    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[2][j]] << " " << zones[zone_id]->data_longint[j].size() << " values." << endl; 
+    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[2][j]] << " " << zones[zone_id]->data_longint[j].size() << " values." << endl;
   cout << "Size of the int vector: " << zones[zone_id]->data_int.size() << endl;
   for (size_t j(0); j<zones[zone_id]->data_int.size(); j++)
-    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[3][j]] << " " << zones[zone_id]->data_int[j].size() << " values." << endl; 
+    cout << "\t" << "[" << j << "]: " << variable_names[zones[zone_id]->variable_index[3][j]] << " " << zones[zone_id]->data_int[j].size() << " values." << endl;
   if (zones[zone_id]->zone_share_connectivity == -1)
     cout << "Size of connectivity: " << zones[zone_id]->zone_connectivity.size() << endl;
   cout << endl;
@@ -524,10 +524,10 @@ tecplotread::~tecplotread()
 string tecplotread::ascii_to_string()
 {
   assert(file.good());
-  
+
   string value;
   int ascii(-1);
-  
+
   file.read((char*) &ascii, sizeof(ascii));
   while (ascii != 0)
   {
@@ -535,7 +535,7 @@ string tecplotread::ascii_to_string()
     value.append(sizeof(char), temp);
     file.read(reinterpret_cast<char *>(&ascii), sizeof(ascii));
   }
-  
+
   return value;
 };
 
@@ -569,66 +569,66 @@ zone::zone() :
   zone_share_connectivity(0)
 {};
 
-int zone::getVariableFormat(int id) const { 
-  assert(id >= 0 and id < int(variable_format.size())); 
-  return variable_format[id]; 
+int zone::getVariableFormat(int id) const {
+  assert(id >= 0 and id < int(variable_format.size()));
+  return variable_format[id];
 };
 
-vector<int> zone::getVariableIndex(int id) const { 
-  assert(id >= 0 and id < int(variable_index.size())); 
-  return variable_index[id]; 
+vector<int> zone::getVariableIndex(int id) const {
+  assert(id >= 0 and id < int(variable_index.size()));
+  return variable_index[id];
 };
 
-int zone::getVariableIndex(int type, int id) const { 
-  assert(type >= 0 and type < int(variable_index.size())); 
-  assert(id >= 0 and id < int(variable_index[type].size())); 
-  return variable_index[type][id]; 
+int zone::getVariableIndex(int type, int id) const {
+  assert(type >= 0 and type < int(variable_index.size()));
+  assert(id >= 0 and id < int(variable_index[type].size()));
+  return variable_index[type][id];
 };
 
-int zone::getPassiveVariables(int id) const { 
-  assert(id >= 0 and id < int(passive_variables.size())); 
-  return passive_variables[id]; 
+int zone::getPassiveVariables(int id) const {
+  assert(id >= 0 and id < int(passive_variables.size()));
+  return passive_variables[id];
 };
 
-int zone::getVariableSharing(int id) const { 
-  assert(id >= 0 and id < int(variable_sharing.size())); 
-  return variable_sharing[id]; 
+int zone::getVariableSharing(int id) const {
+  assert(id >= 0 and id < int(variable_sharing.size()));
+  return variable_sharing[id];
 };
 
-double zone::getMinValue(int id) const { 
-  assert(id >= 0 and id < int(min_value.size())); 
-  return min_value[id]; 
+double zone::getMinValue(int id) const {
+  assert(id >= 0 and id < int(min_value.size()));
+  return min_value[id];
 };
 
-double zone::getMaxValue(int id) const { 
-  assert(id >= 0 and id < int(max_value.size())); 
-  return max_value[id]; 
+double zone::getMaxValue(int id) const {
+  assert(id >= 0 and id < int(max_value.size()));
+  return max_value[id];
 };
 
-int zone::getVarsLocation(int id) const { 
-  assert(id >= 0 and id < int(vars_location.size())); 
-  return vars_location[id]; 
+int zone::getVarsLocation(int id) const {
+  assert(id >= 0 and id < int(vars_location.size()));
+  return vars_location[id];
 };
 
-vector<float> zone::getDataFloat(int id) const { 
-  assert(id >= 0 and id < int(data_float.size())); 
-  return data_float[id]; 
+vector<float> zone::getDataFloat(int id) const {
+  assert(id >= 0 and id < int(data_float.size()));
+  return data_float[id];
 };
-vector<double> zone::getDataDouble(int id) const { 
-  assert(id >= 0 and id < int(data_double.size())); 
-  return data_double[id]; 
+vector<double> zone::getDataDouble(int id) const {
+  assert(id >= 0 and id < int(data_double.size()));
+  return data_double[id];
 };
-vector<long int> zone::getDataLongInt(int id) const { 
-  assert(id >= 0 and id < int(data_longint.size())); 
-  return data_longint[id]; 
+vector<long int> zone::getDataLongInt(int id) const {
+  assert(id >= 0 and id < int(data_longint.size()));
+  return data_longint[id];
 };
-vector<int> zone::getDataInt(int id) const { 
-  assert(id >= 0 and id < int(data_int.size())); 
-  return data_int[id]; 
+vector<int> zone::getDataInt(int id) const {
+  assert(id >= 0 and id < int(data_int.size()));
+  return data_int[id];
 };
 
 auxiliary::auxiliary() :
   auxiliary_name(""),
-  auxiliary_format(-1), 
+  auxiliary_format(-1),
   auxiliary_value("")
 {};
