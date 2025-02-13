@@ -21,8 +21,8 @@ With the printed information, it is easy to see the variable
 tables and name available, the number of zones, etc.
 
 1. Retrieving variables name
-  - `vector<string> vars_name = tpobj->getVariableNames(0);`
-  - `string var1 = tpobj->getVariableNames(0);`
+  - `vector<string> vars_name = tpobj->getVariableNames();`
+  - `string var1 = tpobj->getVariableName(0);`
 
 2. Retrieving number of points and elements in zone1 :
   - `int number_points = tpobj->getZone(0)->getNumberPoints();`
